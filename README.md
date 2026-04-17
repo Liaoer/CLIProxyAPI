@@ -50,6 +50,7 @@ Get 10% OFF GLM CODING PLAN：https://z.ai/subscribe?ic=8JVLJQFSKB
 - OpenAI/Gemini/Claude compatible API endpoints for CLI models
 - OpenAI Codex support (GPT models) via OAuth login
 - Claude Code support via OAuth login
+- Management API support for Codex account switching and diagnostics
 - Amp CLI and IDE extensions support with provider routing
 - Streaming and non-streaming responses
 - Function calling/tools support
@@ -63,6 +64,7 @@ Get 10% OFF GLM CODING PLAN：https://z.ai/subscribe?ic=8JVLJQFSKB
 - OpenAI Codex multi-account load balancing
 - OpenAI-compatible upstream providers via config (e.g., OpenRouter)
 - Reusable Go SDK for embedding the proxy (see `docs/sdk-usage.md`)
+- Windows helper scripts for hidden startup, manual stop, and startup task management
 
 ## Getting Started
 
@@ -71,6 +73,42 @@ CLIProxyAPI Guides: [https://help.router-for.me/](https://help.router-for.me/)
 ## Management API
 
 see [MANAGEMENT_API.md](https://help.router-for.me/management/api)
+
+### Additional local management workflows
+
+The repository also includes local-only management flows that are useful for desktop and router/plugin integrations:
+
+- `GET /v0/management/health-report`
+  - Read-only diagnostics report for managed accounts.
+  - Supports `?auth_id=<id>` for a single account and `?deep=true` for live refresh validation.
+  - Deep mode classifies common Codex failures such as `AUTH_EXPIRED`, `REFRESH_TOKEN_MISSING`, `REFRESH_TOKEN_REUSED`, and active-login mismatches.
+- `POST /v0/management/codex/switch-auth`
+  - Switches the current local Codex desktop/CLI login to one managed Codex auth.
+  - Optionally refreshes the selected auth before writing the active Codex auth file.
+  - Intended for localhost management use; the caller still needs to restart Codex Desktop if it is already running.
+
+All management routes still require a management key. For local requests, the desktop build can also accept a runtime-only local management password when configured by the launcher.
+
+## Windows Local Operations
+
+If you run CLIProxyAPI on Windows as a long-lived local service, the repository ships helper scripts under [`scripts/`](scripts):
+
+- `start-local.ps1`
+  - Starts `bin\cli-proxy-api.exe` with `config.yaml`
+  - Writes PID/stdout/stderr under `.runtime\`
+  - Avoids duplicate starts when an existing PID is still alive
+- `stop-local.ps1`
+  - Stops the running process by PID
+  - Cleans the PID file
+- `register-hidden-startup-task.ps1`
+  - Registers a hidden Windows Scheduled Task named `CLIProxyAPI Hidden Startup`
+  - Starts CLIProxyAPI silently at user logon
+- `unregister-hidden-startup-task.ps1`
+  - Removes the scheduled task
+- `disable-hidden-startup-task.ps1` / `enable-hidden-startup-task.ps1`
+  - Temporarily disable or re-enable auto-start without deleting the task
+
+For a fuller Windows runbook, including task registration, runtime paths, and validation steps, see [docs/windows-operations.md](docs/windows-operations.md).
 
 ## Amp CLI Support
 

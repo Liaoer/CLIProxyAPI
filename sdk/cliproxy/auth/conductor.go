@@ -105,13 +105,6 @@ type Selector interface {
 	Pick(ctx context.Context, provider, model string, opts cliproxyexecutor.Options, auths []*Auth) (*Auth, error)
 }
 
-// StoppableSelector is an optional interface for selectors that hold resources.
-// Selectors that implement this interface will have Stop called during shutdown.
-type StoppableSelector interface {
-	Selector
-	Stop()
-}
-
 // Hook captures lifecycle callbacks for observing auth changes.
 type Hook interface {
 	// OnAuthRegistered fires when a new auth is registered.
@@ -2530,6 +2523,64 @@ func (m *Manager) GetByID(id string) (*Auth, bool) {
 	return auth.Clone(), true
 }
 
+// RefreshByID refreshes a single auth record immediately and persists the updated state.
+func (m *Manager) RefreshByID(ctx context.Context, id string) (*Auth, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return nil, &Error{Code: "auth_id_required", Message: "auth id is required", HTTPStatus: http.StatusBadRequest}
+	}
+
+	m.mu.RLock()
+	auth := m.auths[id]
+	var exec ProviderExecutor
+	if auth != nil {
+		exec = m.executors[auth.Provider]
+	}
+	m.mu.RUnlock()
+	if auth == nil {
+		return nil, &Error{Code: "auth_not_found", Message: "auth not found", HTTPStatus: http.StatusNotFound}
+	}
+	if auth.Disabled {
+		return nil, &Error{Code: "auth_disabled", Message: "auth is disabled", HTTPStatus: http.StatusConflict}
+	}
+	if exec == nil {
+		return nil, &Error{Code: "executor_not_found", Message: "executor not registered", HTTPStatus: http.StatusConflict}
+	}
+
+	cloned := auth.Clone()
+	updated, err := exec.Refresh(ctx, cloned)
+	if err != nil {
+		now := time.Now()
+		m.mu.Lock()
+		if current := m.auths[id]; current != nil {
+			current.NextRefreshAfter = now.Add(refreshFailureBackoff)
+			current.LastError = &Error{Message: err.Error()}
+			m.auths[id] = current
+			if m.scheduler != nil {
+				m.scheduler.upsertAuth(current.Clone())
+			}
+		}
+		m.mu.Unlock()
+		m.queueRefreshReschedule(id)
+		return nil, err
+	}
+	if updated == nil {
+		updated = cloned
+	}
+	if updated.Runtime == nil {
+		updated.Runtime = auth.Runtime
+	}
+	now := time.Now()
+	updated.LastRefreshedAt = now
+	updated.NextRefreshAfter = time.Time{}
+	updated.LastError = nil
+	updated.UpdatedAt = now
+	return m.Update(ctx, updated)
+}
+
 // Executor returns the registered provider executor for a provider key.
 func (m *Manager) Executor(provider string) (ProviderExecutor, bool) {
 	if m == nil {
@@ -2935,7 +2986,6 @@ func (m *Manager) StartAutoRefresh(parent context.Context, interval time.Duratio
 }
 
 // StopAutoRefresh cancels the background refresh loop, if running.
-// It also stops the selector if it implements StoppableSelector.
 func (m *Manager) StopAutoRefresh() {
 	m.mu.Lock()
 	cancel := m.refreshCancel
@@ -2944,10 +2994,6 @@ func (m *Manager) StopAutoRefresh() {
 	m.mu.Unlock()
 	if cancel != nil {
 		cancel()
-	}
-	// Stop selector if it implements StoppableSelector (e.g., SessionAffinitySelector)
-	if stoppable, ok := m.selector.(StoppableSelector); ok {
-		stoppable.Stop()
 	}
 }
 

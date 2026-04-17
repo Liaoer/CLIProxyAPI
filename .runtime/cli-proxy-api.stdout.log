@@ -1,0 +1,65 @@
+CLIProxyAPI Version: dev, Commit: none, BuiltAt: unknown
+[2026-04-17 23:57:52] [--------] [info ] [main.go:428] CLIProxyAPI Version: dev, Commit: none, BuiltAt: unknown
+[2026-04-17 23:57:52] [--------] [info ] [antigravity_version.go:51] periodic antigravity version refresh started (interval=3h0m0s)
+[2026-04-17 23:57:52] [--------] [info ] [server.go:490] management routes registered after secret key configuration
+API server started successfully on: 0.0.0.0:8317
+server clients and configuration updated: 14 clients (14 auth entries + 0 Gemini API keys + 0 Claude API keys + 0 Codex keys + 0 Vertex-compat + 0 OpenAI-compat)
+[2026-04-17 23:57:52] [--------] [info ] [clients.go:138] full client load complete - 14 clients (14 auth files + 0 Gemini API keys + 0 Vertex API keys + 0 Claude API keys + 0 Codex keys + 0 OpenAI-compat)
+[2026-04-17 23:57:52] [--------] [info ] [service.go:707] file watcher started for config and auth directory changes
+[2026-04-17 23:57:52] [--------] [info ] [service.go:713] core auth auto-refresh started (interval=15m0s)
+[2026-04-17 23:57:53] [--------] [info ] [antigravity_version.go:76] fetched latest antigravity version
+[2026-04-17 23:57:53] [--------] [info ] [model_updater.go:133] startup model refresh completed from https://raw.githubusercontent.com/router-for-me/models/refs/heads/main/models.json, no changes detected
+[2026-04-17 23:57:53] [--------] [info ] [model_updater.go:91] periodic model refresh started (interval=3h0m0s)
+[2026-04-17 23:59:50] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:02:53] [--------] [info ] [gin_logger.go:93] 304 |            0s |       127.0.0.1 | GET     "/management.html"
+[2026-04-18 00:02:53] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/config"
+[2026-04-18 00:02:55] [--------] [info ] [gin_logger.go:93] 200 |          44ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:02:55] [--------] [info ] [gin_logger.go:93] 200 |          44ms |       127.0.0.1 | GET     "/v0/management/oauth-model-alias"
+[2026-04-18 00:02:55] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/oauth-excluded-models"
+[2026-04-18 00:02:55] [--------] [info ] [gin_logger.go:93] 200 |          46ms |       127.0.0.1 | GET     "/v0/management/auth-files?is_webui=true"
+[2026-04-18 00:03:01] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | PATCH   "/v0/management/auth-files/fields"
+[2026-04-18 00:03:01] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-jakialebeau@gmail.com-pro.json, processing incrementally
+[2026-04-18 00:03:01] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/auth-files?is_webui=true"
+[2026-04-18 00:05:22] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-bauermeisterflorian0@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:23] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-buchannonantonucci169@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:23] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-ekeltay945@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:24] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-gratesdavoren@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:25] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-jakialebeau@gmail.com-pro.json, processing incrementally
+[2026-04-18 00:05:26] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-jamburidzeirakli202@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:26] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-laurmiriam583@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:27] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-liaocoder@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:27] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-lonelyliao@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:28] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-maniyagunan324@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:29] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-ogleralcorcha@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:30] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-roshanvirat323@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:31] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-sattelhumberson772@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:31] [--------] [info ] [gin_logger.go:93] 200 |       11.622s |       127.0.0.1 | GET     "/v0/management/health-report?deep=true"
+[2026-04-18 00:05:31] [--------] [info ] [events.go:122] auth file changed (WRITE): codex-slicatoire283@gmail.com-plus.json, processing incrementally
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          46ms |    192.168.50.1 | GET     "/v0/management/auth-files"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          47ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-bauermeisterflorian0%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          43ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-buchannonantonucci169%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          41ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-ekeltay945%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          40ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-gratesdavoren%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          39ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-jamburidzeirakli202%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          47ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-laurmiriam583%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          50ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-liaocoder%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          45ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-lonelyliao%40gmail.com-plus.json"
+[2026-04-18 00:05:44] [--------] [info ] [gin_logger.go:93] 200 |          51ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-maniyagunan324%40gmail.com-plus.json"
+[2026-04-18 00:05:45] [--------] [info ] [gin_logger.go:93] 200 |          46ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-ogleralcorcha%40gmail.com-plus.json"
+[2026-04-18 00:05:45] [--------] [info ] [gin_logger.go:93] 200 |          39ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-roshanvirat323%40gmail.com-plus.json"
+[2026-04-18 00:05:45] [--------] [info ] [gin_logger.go:93] 200 |          43ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-sattelhumberson772%40gmail.com-plus.json"
+[2026-04-18 00:05:45] [--------] [info ] [gin_logger.go:93] 200 |          41ms |    192.168.50.1 | GET     "/v0/management/auth-files/download?name=codex-slicatoire283%40gmail.com-plus.json"
+[2026-04-18 00:06:56] [--------] [info ] [gin_logger.go:93] 200 |          43ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:07:51] [--------] [info ] [gin_logger.go:93] 200 |          69ms |       127.0.0.1 | GET     "/management.html"
+[2026-04-18 00:10:27] [--------] [info ] [gin_logger.go:93] 200 |          40ms |       127.0.0.1 | GET     "/management.html"
+[2026-04-18 00:10:27] [--------] [info ] [gin_logger.go:93] 200 |          48ms |       127.0.0.1 | GET     "/v0/management/config"
+[2026-04-18 00:10:29] [--------] [info ] [gin_logger.go:93] 200 |          44ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:10:29] [--------] [info ] [gin_logger.go:93] 200 |          43ms |       127.0.0.1 | GET     "/v0/management/oauth-excluded-models"
+[2026-04-18 00:10:29] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/auth-files?is_webui=true"
+[2026-04-18 00:10:29] [--------] [info ] [gin_logger.go:93] 200 |          43ms |       127.0.0.1 | GET     "/v0/management/oauth-model-alias"
+[2026-04-18 00:14:29] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:17:13] [--------] [info ] [gin_logger.go:93] 200 |        1.964s |       127.0.0.1 | POST    "/v0/management/api-call"
+[2026-04-18 00:18:29] [--------] [info ] [gin_logger.go:93] 200 |          45ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:22:29] [--------] [info ] [gin_logger.go:93] 200 |          46ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:26:29] [--------] [info ] [gin_logger.go:93] 200 |          46ms |       127.0.0.1 | GET     "/v0/management/usage"
+[2026-04-18 00:30:29] [--------] [info ] [gin_logger.go:93] 200 |          40ms |       127.0.0.1 | GET     "/v0/management/usage"

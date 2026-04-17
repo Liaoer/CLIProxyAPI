@@ -73,6 +73,7 @@ func TestFileSynthesizer_Synthesize_ValidAuthFile(t *testing.T) {
 		"email":     "test@example.com",
 		"proxy_url": "http://proxy.local",
 		"prefix":    "test-prefix",
+		"stop_sync": true,
 		"headers": map[string]string{
 			" X-Test ": " value ",
 			"X-Empty":  "  ",
@@ -113,6 +114,12 @@ func TestFileSynthesizer_Synthesize_ValidAuthFile(t *testing.T) {
 	}
 	if auths[0].ProxyURL != "http://proxy.local" {
 		t.Errorf("expected proxy_url http://proxy.local, got %s", auths[0].ProxyURL)
+	}
+	if got, ok := auths[0].Metadata["stop_sync"].(bool); !ok || !got {
+		t.Errorf("expected metadata.stop_sync true, got %v", auths[0].Metadata["stop_sync"])
+	}
+	if got := auths[0].Attributes["stop_sync"]; got != "true" {
+		t.Errorf("expected attribute stop_sync true, got %q", got)
 	}
 	if got := auths[0].Attributes["header:X-Test"]; got != "value" {
 		t.Errorf("expected header:X-Test value, got %q", got)

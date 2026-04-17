@@ -118,6 +118,8 @@ func synthesizeFileAuths(ctx *SynthesisContext, fullPath string, data []byte) []
 		status = coreauth.StatusDisabled
 	}
 
+	stopSync := metadataBool(metadata, "stop_sync")
+
 	// Read per-account excluded models from the OAuth JSON file.
 	perAccountExcluded := extractExcludedModelsFromMetadata(metadata)
 
@@ -136,6 +138,9 @@ func synthesizeFileAuths(ctx *SynthesisContext, fullPath string, data []byte) []
 		Metadata:  metadata,
 		CreatedAt: now,
 		UpdatedAt: now,
+	}
+	if stopSync {
+		a.Attributes["stop_sync"] = "true"
 	}
 	// Read priority from auth file.
 	if rawPriority, ok := metadata["priority"]; ok {
@@ -256,6 +261,10 @@ func SynthesizeGeminiVirtualAuths(primary *coreauth.Auth, metadata map[string]an
 		} else if v, ok := metadata["request-retry"]; ok {
 			metadataCopy["request_retry"] = v
 		}
+		if metadataBool(metadata, "stop_sync") {
+			metadataCopy["stop_sync"] = true
+			attrs["stop_sync"] = "true"
+		}
 		proxy := strings.TrimSpace(primary.ProxyURL)
 		if proxy != "" {
 			metadataCopy["proxy_url"] = proxy
@@ -276,6 +285,32 @@ func SynthesizeGeminiVirtualAuths(primary *coreauth.Auth, metadata map[string]an
 		virtuals = append(virtuals, virtual)
 	}
 	return virtuals
+}
+
+func metadataBool(metadata map[string]any, key string) bool {
+	if len(metadata) == 0 {
+		return false
+	}
+	raw, ok := metadata[key]
+	if !ok {
+		return false
+	}
+	switch value := raw.(type) {
+	case bool:
+		return value
+	case string:
+		switch strings.ToLower(strings.TrimSpace(value)) {
+		case "1", "true", "yes", "on":
+			return true
+		}
+	case float64:
+		return value != 0
+	case int:
+		return value != 0
+	case int64:
+		return value != 0
+	}
+	return false
 }
 
 // splitGeminiProjectIDs extracts and deduplicates project IDs from metadata.

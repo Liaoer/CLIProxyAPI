@@ -240,13 +240,17 @@ func (h *Handler) ListAuthFiles(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "handler not initialized"})
 		return
 	}
+	isWebUI := isWebUIRequest(c)
 	if h.authManager == nil {
-		h.listAuthFilesFromDisk(c)
+		h.listAuthFilesFromDisk(c, isWebUI)
 		return
 	}
 	auths := h.authManager.List()
 	files := make([]gin.H, 0, len(auths))
 	for _, auth := range auths {
+		if authStopSync(auth) && !isWebUI {
+			continue
+		}
 		if entry := h.buildAuthFileEntry(auth); entry != nil {
 			files = append(files, entry)
 		}
@@ -308,7 +312,7 @@ func (h *Handler) GetAuthFileModels(c *gin.Context) {
 }
 
 // List auth files from disk when the auth manager is unavailable.
-func (h *Handler) listAuthFilesFromDisk(c *gin.Context) {
+func (h *Handler) listAuthFilesFromDisk(c *gin.Context, isWebUI bool) {
 	entries, err := os.ReadDir(h.cfg.AuthDir)
 	if err != nil {
 		c.JSON(500, gin.H{"error": fmt.Sprintf("failed to read auth dir: %v", err)})
@@ -348,8 +352,25 @@ func (h *Handler) listAuthFilesFromDisk(c *gin.Context) {
 						fileData["note"] = trimmed
 					}
 				}
+				if sv := gjson.GetBytes(data, "stop_sync"); sv.Exists() {
+					stopSync := false
+					switch sv.Type {
+					case gjson.True:
+						stopSync = true
+					case gjson.String:
+						stopSync = parseBoolString(sv.String())
+					case gjson.Number:
+						stopSync = sv.Int() != 0
+					}
+					if stopSync {
+						fileData["stop_sync"] = true
+					}
+				}
 			}
 
+			if stopSyncEntry(fileData) && !isWebUI {
+				continue
+			}
 			files = append(files, fileData)
 		}
 	}
@@ -462,6 +483,7 @@ func (h *Handler) buildAuthFileEntry(auth *coreauth.Auth) gin.H {
 			}
 		}
 	}
+	entry["stop_sync"] = authStopSync(auth)
 	return entry
 }
 
@@ -530,6 +552,52 @@ func authAttribute(auth *coreauth.Auth, key string) string {
 		return ""
 	}
 	return auth.Attributes[key]
+}
+
+func authStopSync(auth *coreauth.Auth) bool {
+	if auth == nil {
+		return false
+	}
+	if parseBoolString(authAttribute(auth, "stop_sync")) {
+		return true
+	}
+	if auth.Metadata == nil {
+		return false
+	}
+	return parseBoolValue(auth.Metadata["stop_sync"])
+}
+
+func stopSyncEntry(entry gin.H) bool {
+	if entry == nil {
+		return false
+	}
+	return parseBoolValue(entry["stop_sync"])
+}
+
+func parseBoolValue(raw any) bool {
+	switch value := raw.(type) {
+	case bool:
+		return value
+	case string:
+		return parseBoolString(value)
+	case int:
+		return value != 0
+	case int64:
+		return value != 0
+	case float64:
+		return value != 0
+	default:
+		return false
+	}
+}
+
+func parseBoolString(raw string) bool {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }
 
 func isRuntimeOnlyAuth(auth *coreauth.Auth) bool {
@@ -1011,6 +1079,9 @@ func (h *Handler) buildAuthFromFileData(path string, data []byte) (*coreauth.Aut
 		"path":   path,
 		"source": path,
 	}
+	if parseBoolValue(metadata["stop_sync"]) {
+		attr["stop_sync"] = "true"
+	}
 	auth := &coreauth.Auth{
 		ID:         authID,
 		Provider:   provider,
@@ -1118,7 +1189,7 @@ func (h *Handler) PatchAuthFileStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "disabled": *req.Disabled})
 }
 
-// PatchAuthFileFields updates editable fields (prefix, proxy_url, headers, priority, note) of an auth file.
+// PatchAuthFileFields updates editable fields (prefix, proxy_url, headers, priority, note, stop_sync) of an auth file.
 func (h *Handler) PatchAuthFileFields(c *gin.Context) {
 	if h.authManager == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "core auth manager unavailable"})
@@ -1132,6 +1203,7 @@ func (h *Handler) PatchAuthFileFields(c *gin.Context) {
 		Headers  map[string]string `json:"headers"`
 		Priority *int              `json:"priority"`
 		Note     *string           `json:"note"`
+		StopSync *bool             `json:"stop_sync"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
@@ -1268,7 +1340,7 @@ func (h *Handler) PatchAuthFileFields(c *gin.Context) {
 			changed = true
 		}
 	}
-	if req.Priority != nil || req.Note != nil {
+	if req.Priority != nil || req.Note != nil || req.StopSync != nil {
 		if targetAuth.Metadata == nil {
 			targetAuth.Metadata = make(map[string]any)
 		}
@@ -1293,6 +1365,15 @@ func (h *Handler) PatchAuthFileFields(c *gin.Context) {
 			} else {
 				targetAuth.Metadata["note"] = trimmedNote
 				targetAuth.Attributes["note"] = trimmedNote
+			}
+		}
+		if req.StopSync != nil {
+			if *req.StopSync {
+				targetAuth.Metadata["stop_sync"] = true
+				targetAuth.Attributes["stop_sync"] = "true"
+			} else {
+				delete(targetAuth.Metadata, "stop_sync")
+				delete(targetAuth.Attributes, "stop_sync")
 			}
 		}
 		changed = true

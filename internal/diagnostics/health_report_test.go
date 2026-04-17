@@ -302,19 +302,19 @@ func TestGenerateHealthReportDeepRefreshHumanizesReusedRefreshToken(t *testing.T
 	if account == nil {
 		t.Fatalf("account health not found: %#v", report.Accounts)
 	}
-	if report.Headline == "" || !strings.Contains(report.Headline, "refresh token") || !strings.Contains(report.Headline, "鍏朵粬瀹㈡埛绔?) {
+	if report.Headline == "" || !strings.Contains(report.Headline, "refresh token") || !strings.Contains(report.Headline, "轮换") {
 		t.Fatalf("headline = %q, want reused token guidance", report.Headline)
 	}
-	if !strings.Contains(report.OperatorAdvice, "閲嶆柊鍚屾鎴栭噸鏂板鍏?) {
+	if !strings.Contains(report.OperatorAdvice, "重新同步或重新导入") {
 		t.Fatalf("operator advice = %q, want recovery steps", report.OperatorAdvice)
 	}
 	if account.PrimaryReasonCode != ReasonRefreshTokenReused {
 		t.Fatalf("primary reason = %q, want %q", account.PrimaryReasonCode, ReasonRefreshTokenReused)
 	}
-	if !strings.Contains(account.DisplayMessage, "鏃?token") {
+	if !strings.Contains(account.DisplayMessage, "旧 token") {
 		t.Fatalf("display message = %q, want reused-token explanation", account.DisplayMessage)
 	}
-	if !strings.Contains(account.NextStep, "閲嶆柊鍚屾") {
+	if !strings.Contains(account.NextStep, "重新同步或重新导入") {
 		t.Fatalf("next step = %q, want resync guidance", account.NextStep)
 	}
 }
@@ -369,7 +369,7 @@ func TestGenerateHealthReportUsesGenericHeadlineForMixedReasons(t *testing.T) {
 		t.Fatalf("Generate returned error: %v", err)
 	}
 
-	if !strings.Contains(report.Headline, "澶氫釜涓嶅悓鍘熷洜") {
+	if !strings.Contains(report.Headline, "多种不同原因") {
 		t.Fatalf("headline = %q, want generic mixed-reason guidance", report.Headline)
 	}
 	reused := findAccount(report, "codex-reused")
@@ -436,10 +436,10 @@ func TestGenerateHealthReportHumanizesActiveCodexMismatch(t *testing.T) {
 	if !strings.Contains(account.DisplayTitle, "Codex") {
 		t.Fatalf("display title = %q, want Codex mismatch title", account.DisplayTitle)
 	}
-	if !strings.Contains(account.NextStep, "鍒囨崲鍒?Codex") {
+	if !strings.Contains(account.NextStep, "切换到对应的 Codex 账号") {
 		t.Fatalf("next step = %q, want switch guidance", account.NextStep)
 	}
-	if strings.Contains(account.NextStep, "閲嶆柊鎺堟潈") {
+	if strings.Contains(account.NextStep, "重新授权") {
 		t.Fatalf("next step = %q, should not ask for reauthorize", account.NextStep)
 	}
 }
